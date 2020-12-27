@@ -1,5 +1,7 @@
 package com.clone.fccreddit.service;
 
+import com.clone.fccreddit.dto.AuthenticationResponse;
+import com.clone.fccreddit.dto.LoginRequest;
 import com.clone.fccreddit.dto.RegisterRequest;
 import com.clone.fccreddit.exceptions.SpringRedditException;
 import com.clone.fccreddit.model.NotificationEmail;
@@ -7,7 +9,12 @@ import com.clone.fccreddit.model.User;
 import com.clone.fccreddit.model.VerificationToken;
 import com.clone.fccreddit.repository.UserRepository;
 import com.clone.fccreddit.repository.VerificationRepository;
+import com.clone.fccreddit.security.JwtProvider;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +30,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationRepository verificationRepository;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
 
 //    For Dependency Injection we can use field injection or constructor injection. But constructor
 //    injection is generally recommended. As @AllArgsConstructor handles our constructor creation at
@@ -74,5 +83,13 @@ public class AuthService {
         verificationToken.orElseThrow(() -> new SpringRedditException("Invalid Token"));
 
         fetchUserAndEnable(verificationToken.get());
+    }
+
+    public AuthenticationResponse login(LoginRequest loginRequest) {
+        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+                loginRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        String token = jwtProvider.generateToken(authenticate);
+        return new AuthenticationResponse(token, loginRequest.getUsername());
     }
 }
