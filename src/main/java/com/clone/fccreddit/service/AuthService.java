@@ -45,7 +45,7 @@ public class AuthService {
         NotificationEmail notificationEmail = new NotificationEmail("Please Activate your account",
                 user.getEmail(),
                 "Thank you for signing up to Spring Reddit. " +
-                        "To Activate your reddit account, please Click Below" +
+                        "To Activate your reddit account, please Click Here : " +
                         "http://localhost:8080/api/auth/accountVerification/" + token);
 
         mailService.sendMail(notificationEmail);

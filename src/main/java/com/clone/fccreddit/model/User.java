@@ -17,7 +17,8 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(name = "users") // it is necessary to name the table as there are certain default keywords in
+// sql (like users) that cause sql to not allow creation of a table of the same name
 public class User {
 
     @Id
