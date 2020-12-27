@@ -1,6 +1,7 @@
 package com.clone.fccreddit.service;
 
 import com.clone.fccreddit.dto.RegisterRequest;
+import com.clone.fccreddit.exceptions.SpringRedditException;
 import com.clone.fccreddit.model.NotificationEmail;
 import com.clone.fccreddit.model.User;
 import com.clone.fccreddit.model.VerificationToken;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,11 +39,16 @@ public class AuthService {
 
         userRepository.save(user);
 
+
         String token = generateVerificationToken(user);
-        mailService.sendMail(new NotificationEmail("Please Activate your account", user.getEmail(),
+
+        NotificationEmail notificationEmail = new NotificationEmail("Please Activate your account",
+                user.getEmail(),
                 "Thank you for signing up to Spring Reddit. " +
                         "To Activate your reddit account, please Click Below" +
-                        "http://localhost:8080/api/auth/accountVerification/" + token));
+                        "http://localhost:8080/api/auth/accountVerification/" + token);
+
+        mailService.sendMail(notificationEmail);
     }
 
     public String generateVerificationToken(User user){
@@ -52,5 +59,20 @@ public class AuthService {
 
         verificationRepository.save(verificationToken);
         return token;
+    }
+
+    @Transactional
+    private void fetchUserAndEnable(VerificationToken verificationToken) {
+        String username = verificationToken.getUser().getUsername();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new SpringRedditException("User Not Found with the name :" + username));
+        user.setEnabled(true);
+        userRepository.save(user);
+    }
+
+    public void verifyAccount(String token) {
+        Optional<VerificationToken> verificationToken = verificationRepository.findByToken(token);
+        verificationToken.orElseThrow(() -> new SpringRedditException("Invalid Token"));
+
+        fetchUserAndEnable(verificationToken.get());
     }
 }

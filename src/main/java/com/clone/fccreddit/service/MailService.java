@@ -1,6 +1,6 @@
 package com.clone.fccreddit.service;
 
-import com.clone.fccreddit.excpetions.SpringRedditException;
+import com.clone.fccreddit.exceptions.SpringRedditException;
 import com.clone.fccreddit.model.NotificationEmail;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,18 +19,19 @@ public class MailService {
     private final MailContentBuilder mailContentBuilder;
 
     void sendMail(NotificationEmail notificationEmail){
-        MimeMessagePreparator messagePreparator = mimeMessage -> {
+        MimeMessagePreparator messagePrep = mimeMessage -> {
            MimeMessageHelper messageHelper = new MimeMessageHelper((mimeMessage));
            messageHelper.setFrom("springReddit@email.com");
            messageHelper.setTo(notificationEmail.getRecipient());
            messageHelper.setSubject(notificationEmail.getSubject());
-           messageHelper.setText(mailContentBuilder.build(notificationEmail.getBody()));
+           messageHelper.setText(notificationEmail.getBody());
         };
         try{
-            mailSender.send(messagePreparator);
+            mailSender.send(messagePrep);
             log.info("Activation Email Sent !!");
         } catch (MailException e){
-            throw new SpringRedditException("Exception occured when sending mail to recipient : " + notificationEmail.getRecipient());
+            e.printStackTrace();
+            throw new SpringRedditException("Exception occurred when sending mail to recipient : " + notificationEmail.getRecipient(), e);
         }
     }
 }
