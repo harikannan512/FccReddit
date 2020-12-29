@@ -1,6 +1,7 @@
 package com.clone.fccreddit.security;
 
 import com.clone.fccreddit.exceptions.SpringRedditException;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -11,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+
+import static io.jsonwebtoken.Jwts.parser;
 
 
 @Service
@@ -45,6 +48,29 @@ public class JwtProvider {
                 .setSubject(principal.getUsername())
                 .signWith(getPrivateKey())
                 .compact();
+    }
+
+    public boolean validateToken(String jwt){
+        parser().setSigningKey(getPublicKey()).parseClaimsJws(jwt);
+        return true;
+    }
+
+    private PublicKey getPublicKey() {
+        try {
+            return (PublicKey) keyStore.getCertificate("springblog").getPublicKey();
+        } catch( KeyStoreException e){
+            throw new SpringRedditException("Exception occured while retreiving " +
+                    "public key form keystore ");
+        }
+    }
+
+    public String getUsernameFromJwt(String token){
+        Claims claims = parser()
+                .setSigningKey(getPublicKey())
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
     }
 
 }
