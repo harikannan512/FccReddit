@@ -19,18 +19,24 @@ public class SubredditService {
 
     private final SubRedditRepository subRedditRepository;
 
+    private SubReddit subredditdDtoBuilder(SubredditDto subredditDto) {
+        return SubReddit.builder()
+                .name(subredditDto.getName())
+                .description(subredditDto.getDescription())
+                .build();
+    }
+
     @Transactional
     public SubredditDto save(SubredditDto subredditDto){
-        SubReddit save = subRedditRepository.save(mapSubredditDto(subredditDto));
+        SubReddit save = subRedditRepository.save(subredditdDtoBuilder(subredditDto));
         subredditDto.setId(save.getId());
 
         return subredditDto;
     }
 
-    private SubReddit mapSubredditDto(SubredditDto subredditDto) {
-        return SubReddit.builder()
-                .name(subredditDto.getName())
-                .description(subredditDto.getDescription())
+    private SubredditDto mapToDto(SubReddit subReddit) {
+        return SubredditDto.builder().name(subReddit.getName())
+                .description(subReddit.getDescription())
                 .build();
     }
 
@@ -40,11 +46,5 @@ public class SubredditService {
                 .stream()
                 .map(this::mapToDto)
                 .collect(toList());
-    }
-
-    private SubredditDto mapToDto(SubReddit subReddit) {
-        return SubredditDto.builder().name(subReddit.getName())
-                .description(subReddit.getDescription())
-                .build();
     }
 }
