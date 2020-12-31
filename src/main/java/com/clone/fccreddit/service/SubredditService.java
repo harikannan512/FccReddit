@@ -19,6 +19,7 @@ public class SubredditService {
 
     private final SubRedditRepository subRedditRepository;
 
+//    POST REQUEST
     private SubReddit subredditdDtoBuilder(SubredditDto subredditDto) {
         return SubReddit.builder()
                 .name(subredditDto.getName())
@@ -33,10 +34,11 @@ public class SubredditService {
 
         return subredditDto;
     }
-
+//  GET REQUEST
     private SubredditDto mapToDto(SubReddit subReddit) {
         return SubredditDto.builder().name(subReddit.getName())
                 .description(subReddit.getDescription())
+                .id((subReddit.getId()))
                 .build();
     }
 
