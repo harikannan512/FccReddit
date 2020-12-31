@@ -38,7 +38,7 @@ public class SubredditService {
     private SubredditDto mapToDto(SubReddit subReddit) {
         return SubredditDto.builder().name(subReddit.getName())
                 .description(subReddit.getDescription())
-                .id((subReddit.getId()))
+                .Id((subReddit.getId()))
                 .build();
     }
 

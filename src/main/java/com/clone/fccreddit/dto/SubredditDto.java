@@ -15,9 +15,7 @@ import javax.persistence.Id;
 @Builder
 public class SubredditDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long Id;
     private String name;
     private String description;
     private Integer numberOfPosts;
