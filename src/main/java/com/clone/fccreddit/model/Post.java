@@ -40,7 +40,7 @@ public class Post {
 
     @ManyToOne
     @JoinColumn(name = "id", referencedColumnName = "id")
-    private SubReddit subReddit;
+    private SubReddit subreddit;
 
 
 
