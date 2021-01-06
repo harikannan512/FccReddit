@@ -2,6 +2,7 @@ package com.clone.fccreddit.service;
 
 import com.clone.fccreddit.dto.AuthenticationResponse;
 import com.clone.fccreddit.dto.LoginRequest;
+import com.clone.fccreddit.dto.RefreshTokenRequest;
 import com.clone.fccreddit.dto.RegisterRequest;
 import com.clone.fccreddit.exceptions.SpringRedditException;
 import com.clone.fccreddit.exceptions.UsernameNotFoundException;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,6 +37,7 @@ public class AuthService {
     private final MailService mailService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
 //    For Dependency Injection we can use field injection or constructor injection. But constructor
 //    injection is generally recommended. As @AllArgsConstructor handles our constructor creation at
@@ -93,7 +96,12 @@ public class AuthService {
                 loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         String token = jwtProvider.generateToken(authenticate);
-        return new AuthenticationResponse(token, loginRequest.getUsername());
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .username(loginRequest.getUsername())
+                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationTime()))
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -103,4 +111,17 @@ public class AuthService {
         return userRepository.findByUsername(principal.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User name not found - " + principal.getUsername()));
     }
+
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) throws Throwable {
+        refreshTokenService.validRefreshToken(refreshTokenRequest.getRefreshToken());
+        String token = jwtProvider.generateTokenWithUsername(refreshTokenRequest.getUsername());
+
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .refreshToken(refreshTokenRequest.getRefreshToken())
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationTime()))
+                .username(refreshTokenRequest.getUsername())
+                .build();
+    }
+
 }
