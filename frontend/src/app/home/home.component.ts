@@ -1,5 +1,5 @@
+
 import { Component, OnInit } from '@angular/core';
-import { SharedService } from '../auth/shared.service';
 import { PostModel } from '../shared/post-model';
 import { PostService } from '../shared/post.service';
 
@@ -10,19 +10,15 @@ import { PostService } from '../shared/post.service';
 })
 export class HomeComponent implements OnInit {
 
-  posts$: Array<PostModel> = [];
+  posts: PostModel[] = [];
 
-  constructor(
-    private sharedService: SharedService, 
-    private postService: PostService
-    ) {
+  constructor(private postService: PostService) {
     this.postService.getAllPosts().subscribe(post => {
-      this.posts$ = post;
+      this.posts = post;
     });
-   }
+  }
 
   ngOnInit(): void {
-  
   }
 
 }

@@ -1,3 +1,5 @@
+import { VoteType } from "./vote-type";
+
 export class PostModel{
 
     commentCount!: number;
@@ -9,4 +11,5 @@ export class PostModel{
     url!: string;
     userName!: string;
     voteCount!: number;
+    voteType!: VoteType;
 }

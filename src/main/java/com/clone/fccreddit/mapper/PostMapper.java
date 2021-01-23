@@ -34,7 +34,7 @@ public abstract class PostMapper {
 
     @Mapping(target = "id", source = "postId")
     @Mapping(target = "subredditName", source = "subreddit.name")
-    @Mapping(target = "userName", source = "user.username")
+    @Mapping(target = "username", source = "user.username")
     @Mapping(target = "commentCount", expression = "java(commentCount(post))")
     @Mapping(target = "duration", expression = "java(getDuration(post))")
     public abstract PostResponse mapToDto(Post post);

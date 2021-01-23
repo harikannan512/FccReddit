@@ -20,6 +20,10 @@ export class TokenInterceptor implements HttpInterceptor{
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent <any>>{
             const jwtToken = this.sharedService.getJwtToken();
+
+            // if(req.url.indexOf('refresh') !== -1 || req.url.indexOf('login')){
+            //     return next.handle(req);
+            // }
             
             if (jwtToken) {
             return next.handle(this.addToken(req, jwtToken)).pipe(catchError(error => {
