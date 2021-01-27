@@ -4,6 +4,7 @@ import com.clone.fccreddit.dto.RefreshTokenRequest;
 import com.clone.fccreddit.exceptions.SpringRedditException;
 import com.clone.fccreddit.model.RefreshToken;
 import com.clone.fccreddit.repository.RefreshTokenRepository;
+import com.clone.fccreddit.security.JwtProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
+
     public RefreshToken generateRefreshToken(){
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setToken(UUID.randomUUID().toString());
@@ -28,9 +30,14 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
     }
 
-    void validRefreshToken(String token) throws Exception{
-        refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new SpringRedditException("Invalid refresh token"));
+    void validRefreshToken(RefreshTokenRequest token, String username) throws Exception{
+        String requestUsername = token.getUsername();
+        if(requestUsername.equals(username)) {
+            refreshTokenRepository.findByToken(token.getRefreshToken())
+                    .orElseThrow(() -> new SpringRedditException("Invalid refresh token"));
+        } else {
+            throw new SpringRedditException("Sneaky peaky eh? You are not " + username);
+        }
     }
 
     public void deleteRefreshToken(RefreshTokenRequest token){

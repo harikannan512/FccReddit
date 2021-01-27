@@ -113,7 +113,7 @@ public class AuthService {
     }
 
     public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) throws Throwable {
-        refreshTokenService.validRefreshToken(refreshTokenRequest.getRefreshToken());
+        refreshTokenService.validRefreshToken(refreshTokenRequest, getCurrentUser().getUsername());
         String token = jwtProvider.generateTokenWithUsername(refreshTokenRequest.getUsername());
 
         return AuthenticationResponse.builder()
